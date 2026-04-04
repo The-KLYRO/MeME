@@ -1,0 +1,287 @@
+{
+  "name": "meme-sounds-live-monitor",
+  "displayName": "Meme Sounds Live Monitor",
+  "description": "Play configurable meme sounds from live terminal, task, and debug output while code is still running.",
+  "version": "0.0.1",
+  "publisher": "local",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.99.0"
+  },
+  "categories": [
+    "Other",
+    "Programming Languages",
+    "Testing"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "files": [
+    "dist/**",
+    "media/**",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "compile": "tsc -p ./tsconfig.json",
+    "compile-tests": "tsc -p ./tsconfig.test.json",
+    "watch": "tsc -w -p ./tsconfig.json",
+    "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\"",
+    "test": "npm run compile-tests && mocha --timeout 5000 \"dist-test/test/**/*.test.js\""
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.24.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.15.3",
+    "@types/vscode": "^1.99.0",
+    "@typescript-eslint/eslint-plugin": "^8.29.0",
+    "@typescript-eslint/parser": "^8.29.0",
+    "eslint": "^9.24.0",
+    "mocha": "^11.1.0",
+    "typescript": "^5.8.3"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "memeSounds.enable",
+        "title": "Meme Sounds: Enable"
+      },
+      {
+        "command": "memeSounds.disable",
+        "title": "Meme Sounds: Disable"
+      },
+      {
+        "command": "memeSounds.toggleMute",
+        "title": "Meme Sounds: Toggle Mute"
+      },
+      {
+        "command": "memeSounds.testSuccessSound",
+        "title": "Meme Sounds: Test Success Sound"
+      },
+      {
+        "command": "memeSounds.testWarningSound",
+        "title": "Meme Sounds: Test Warning Sound"
+      },
+      {
+        "command": "memeSounds.testErrorSound",
+        "title": "Meme Sounds: Test Error Sound"
+      },
+      {
+        "command": "memeSounds.testFailedSound",
+        "title": "Meme Sounds: Test Failed Sound"
+      },
+      {
+        "command": "memeSounds.runCommandWithLiveMonitor",
+        "title": "Meme Sounds: Run Command With Live Monitor"
+      },
+      {
+        "command": "memeSounds.runTaskWithLiveMonitor",
+        "title": "Meme Sounds: Run Task With Live Monitor"
+      },
+      {
+        "command": "memeSounds.attachMonitorToTask",
+        "title": "Meme Sounds: Attach Monitor To Task"
+      },
+      {
+        "command": "memeSounds.reloadPresets",
+        "title": "Meme Sounds: Reload Presets"
+      },
+      {
+        "command": "memeSounds.openOutputLog",
+        "title": "Meme Sounds: Open Output Log"
+      }
+    ],
+    "configuration": {
+      "title": "Meme Sounds",
+      "properties": {
+        "memeSounds.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable live meme sound monitoring."
+        },
+        "memeSounds.masterVolume": {
+          "type": "number",
+          "default": 80,
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Master playback volume from 0 to 100."
+        },
+        "memeSounds.cooldownMs": {
+          "type": "number",
+          "default": 900,
+          "minimum": 0,
+          "description": "Default cooldown applied to repeated sounds."
+        },
+        "memeSounds.maxSimultaneousSounds": {
+          "type": "number",
+          "default": 2,
+          "minimum": 1,
+          "maximum": 8,
+          "description": "Maximum number of sounds allowed to overlap."
+        },
+        "memeSounds.enableStatusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the Meme Sounds status bar item."
+        },
+        "memeSounds.enableDiagnosticsSignal": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use Problems/diagnostics changes as a secondary warning or error signal."
+        },
+        "memeSounds.enableTaskMonitoring": {
+          "type": "boolean",
+          "default": true,
+          "description": "Monitor task lifecycle events."
+        },
+        "memeSounds.enableDebugMonitoring": {
+          "type": "boolean",
+          "default": true,
+          "description": "Monitor debug lifecycle and debug adapter output events."
+        },
+        "memeSounds.enableTerminalMonitoring": {
+          "type": "boolean",
+          "default": true,
+          "description": "Monitor terminal shell executions when shell integration is available."
+        },
+        "memeSounds.sound.success": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the sound for success. Leave empty to use the bundled default."
+        },
+        "memeSounds.sound.warning": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the sound for warning. Leave empty to use the bundled default."
+        },
+        "memeSounds.sound.error": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the sound for error. Leave empty to use the bundled default."
+        },
+        "memeSounds.sound.failed": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the sound for failed. Leave empty to use the bundled default."
+        },
+        "memeSounds.sound.started": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the sound for started. Leave empty to use the bundled default."
+        },
+        "memeSounds.sound.finished": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the sound for finished. Leave empty to use the bundled default."
+        },
+        "memeSounds.presets.rust": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Rust and Cargo output presets."
+        },
+        "memeSounds.presets.python": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Python and pytest output presets."
+        },
+        "memeSounds.presets.javascript": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable JavaScript tool output presets."
+        },
+        "memeSounds.presets.typescript": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable TypeScript tool output presets."
+        },
+        "memeSounds.presets.go": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Go output presets."
+        },
+        "memeSounds.presets.java": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Java, Maven, and Gradle output presets."
+        },
+        "memeSounds.presets.cpp": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable C and C++ compiler output presets."
+        },
+        "memeSounds.presets.csharp": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable C# and .NET output presets."
+        },
+        "memeSounds.customRules": {
+          "type": "array",
+          "default": [],
+          "description": "Custom live matching rules layered on top of built-in presets.",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "eventType"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "enabled": {
+                "type": "boolean",
+                "default": true
+              },
+              "appliesTo": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "sourceType": {
+                "type": "string",
+                "enum": [
+                  "terminal",
+                  "task",
+                  "debug"
+                ]
+              },
+              "regex": {
+                "type": "string"
+              },
+              "contains": {
+                "type": "string"
+              },
+              "excludeRegex": {
+                "type": "string"
+              },
+              "eventType": {
+                "type": "string",
+                "enum": [
+                  "success",
+                  "warning",
+                  "error",
+                  "failed",
+                  "info"
+                ]
+              },
+              "priority": {
+                "type": "number",
+                "default": 100
+              },
+              "cooldownMs": {
+                "type": "number"
+              },
+              "caseSensitive": {
+                "type": "boolean",
+                "default": false
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
