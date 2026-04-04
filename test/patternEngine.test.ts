@@ -16,12 +16,12 @@ function createSettings(): SettingsSnapshot {
     enableDebugMonitoring: true,
     enableTerminalMonitoring: true,
     sounds: {
-      started: 'started.wav',
-      success: 'success.wav',
-      warning: 'warning.wav',
-      error: 'error.wav',
-      failed: 'failed.wav',
-      finished: 'finished.wav'
+      started: ['started.wav'],
+      success: ['success.wav'],
+      warning: ['warning.wav'],
+      error: ['error.wav'],
+      failed: ['failed.wav'],
+      finished: ['finished.wav']
     },
     presets: {
       rust: true,

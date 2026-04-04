@@ -18,13 +18,13 @@ interface CommandInvocation {
 }
 
 export class AudioEngine {
-  private sounds: Record<PlaybackEventType, string> = {
-    started: '',
-    success: '',
-    warning: '',
-    error: '',
-    failed: '',
-    finished: ''
+  private sounds: Record<PlaybackEventType, string[]> = {
+    started: [],
+    success: [],
+    warning: [],
+    error: [],
+    failed: [],
+    finished: []
   };
   private muted = false;
   private volume = 0.8;
@@ -49,12 +49,13 @@ export class AudioEngine {
   }
 
   public async play(eventType: PlaybackEventType): Promise<PlaybackResult> {
-    const soundPath = this.sounds[eventType];
+    const soundPaths = this.sounds[eventType].filter((candidate) => fs.existsSync(candidate));
+    const soundPath = pickRandomSoundPath(soundPaths);
     if (this.muted) {
       return { played: false, reason: 'muted', soundPath };
     }
 
-    if (!soundPath || !fs.existsSync(soundPath)) {
+    if (!soundPath) {
       return { played: false, reason: 'missingSound', soundPath };
     }
 
@@ -67,13 +68,20 @@ export class AudioEngine {
   }
 
   private preload(): void {
-    for (const [eventType, soundPath] of Object.entries(this.sounds)) {
-      if (!soundPath || !fs.existsSync(soundPath)) {
-        this.logger.warn(`audio preload skipped event=${eventType} path='${soundPath}'`);
+    for (const [eventType, soundPaths] of Object.entries(this.sounds)) {
+      if (soundPaths.length === 0) {
+        this.logger.warn(`audio preload skipped event=${eventType} path=''`);
         continue;
       }
 
-      this.logger.debug(`audio preloaded event=${eventType} path='${soundPath}'`);
+      for (const soundPath of soundPaths) {
+        if (!fs.existsSync(soundPath)) {
+          this.logger.warn(`audio preload skipped event=${eventType} path='${soundPath}'`);
+          continue;
+        }
+
+        this.logger.debug(`audio preloaded event=${eventType} path='${soundPath}'`);
+      }
     }
   }
 
@@ -189,6 +197,15 @@ function encodePowerShell(script: string): string {
 
 function escapeForPowerShell(input: string): string {
   return input.replace(/'/g, "''");
+}
+
+function pickRandomSoundPath(soundPaths: readonly string[]): string | undefined {
+  if (soundPaths.length === 0) {
+    return undefined;
+  }
+
+  const index = Math.floor(Math.random() * soundPaths.length);
+  return soundPaths[index];
 }
 
 export type { PlaybackResult };

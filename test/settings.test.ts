@@ -27,8 +27,26 @@ describe('SettingsRegistry', () => {
     const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'meme-sounds-'));
     const mediaDir = path.join(tempRoot, 'media', 'sounds');
     fs.mkdirSync(mediaDir, { recursive: true });
-    for (const eventName of ['started', 'success', 'warning', 'error', 'failed', 'finished']) {
-      fs.writeFileSync(path.join(mediaDir, `${eventName}.wav`), 'fake');
+    for (const fileName of [
+      'started.wav',
+      'success.wav',
+      'warning.wav',
+      'error.wav',
+      'failed.wav',
+      'noice.wav',
+      'oh_my_god_wow.wav',
+      'yeah_boy.wav',
+      'yeet.wav',
+      'what.wav',
+      'enemy_spotted.wav',
+      'technologya.wav',
+      'oh_hell_no_man.wav',
+      'nope_meme.wav',
+      'omaiga_meme.wav',
+      'get_out.wav',
+      'faaaa.wav'
+    ]) {
+      fs.writeFileSync(path.join(mediaDir, fileName), 'fake');
     }
 
     const registry = new SettingsRegistry({
@@ -43,7 +61,14 @@ describe('SettingsRegistry', () => {
     });
 
     const snapshot = registry.getSnapshot();
-    assert.ok(snapshot.sounds.success.endsWith(path.join('media', 'sounds', 'success.wav')));
+    assert.deepEqual(
+      snapshot.sounds.success.map((soundPath) => path.basename(soundPath)),
+      ['success.wav', 'noice.wav', 'oh_my_god_wow.wav', 'yeah_boy.wav', 'yeet.wav']
+    );
+    assert.deepEqual(
+      snapshot.sounds.failed.map((soundPath) => path.basename(soundPath)),
+      ['failed.wav', 'get_out.wav', 'faaaa.wav']
+    );
   });
 
   it('normalizes valid custom rules', () => {

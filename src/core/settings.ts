@@ -35,6 +35,15 @@ const PRESET_KEYS: readonly PresetToggleKey[] = [
 
 const SOUND_EVENTS: readonly PlaybackEventType[] = PLAYABLE_EVENT_TYPES;
 
+const BUNDLED_SOUND_FILES: Readonly<Record<PlaybackEventType, readonly string[]>> = {
+  started: ['started.wav'],
+  success: ['success.wav', 'noice.wav', 'oh_my_god_wow.wav', 'yeah_boy.wav', 'yeet.wav'],
+  warning: ['warning.wav', 'what.wav', 'enemy_spotted.wav', 'technologya.wav'],
+  error: ['error.wav', 'oh_hell_no_man.wav', 'nope_meme.wav', 'omaiga_meme.wav'],
+  failed: ['failed.wav', 'get_out.wav', 'faaaa.wav'],
+  finished: ['success.wav', 'noice.wav', 'oh_my_god_wow.wav', 'yeah_boy.wav', 'yeet.wav']
+};
+
 export class SettingsRegistry {
   private snapshot: SettingsSnapshot;
 
@@ -64,7 +73,7 @@ export class SettingsRegistry {
 
         return [eventType, resolved];
       })
-    ) as Record<PlaybackEventType, string>;
+    ) as Record<PlaybackEventType, string[]>;
 
     const presets = Object.fromEntries(
       PRESET_KEYS.map((presetKey) => [presetKey, config.get<boolean>(`presets.${presetKey}`, true)])
@@ -175,9 +184,14 @@ function resolveSoundPath(options: {
   extensionPath: string;
   workspaceFolders: string[];
   onIssue: (message: string) => void;
-}): string {
-  const bundled = path.join(options.extensionPath, 'media', 'sounds', `${options.eventType}.wav`);
-  const target = options.configured.length > 0 ? resolveUserPath(options.configured, options.workspaceFolders, options.extensionPath) : bundled;
+}): string[] {
+  const bundled = resolveBundledSoundPaths(options.eventType, options.extensionPath, options.onIssue);
+
+  if (options.configured.length === 0) {
+    return bundled;
+  }
+
+  const target = resolveUserPath(options.configured, options.workspaceFolders, options.extensionPath);
   const ext = path.extname(target).toLowerCase();
 
   if (ext !== '.wav' && ext !== '.mp3') {
@@ -186,14 +200,22 @@ function resolveSoundPath(options: {
   }
 
   if (!fs.existsSync(target)) {
-    if (target !== bundled) {
-      options.onIssue(`Sound for '${options.eventType}' was not found at '${target}'. Falling back to bundled sound.`);
-    }
-
+    options.onIssue(`Sound for '${options.eventType}' was not found at '${target}'. Falling back to bundled sound.`);
     return bundled;
   }
 
-  return target;
+  return [target];
+}
+
+function resolveBundledSoundPaths(eventType: PlaybackEventType, extensionPath: string, onIssue: (message: string) => void): string[] {
+  const candidates = BUNDLED_SOUND_FILES[eventType].map((fileName) => path.join(extensionPath, 'media', 'sounds', fileName));
+  const resolved = candidates.filter((candidate) => fs.existsSync(candidate));
+
+  if (resolved.length === 0) {
+    onIssue(`No bundled sounds were found for '${eventType}'.`);
+  }
+
+  return resolved;
 }
 
 function resolveUserPath(rawPath: string, workspaceFolders: string[], extensionPath: string): string {

@@ -83,7 +83,7 @@ export interface SettingsSnapshot {
   enableTaskMonitoring: boolean;
   enableDebugMonitoring: boolean;
   enableTerminalMonitoring: boolean;
-  sounds: Record<PlaybackEventType, string>;
+  sounds: Record<PlaybackEventType, string[]>;
   presets: Record<PresetToggleKey, boolean>;
   customRules: CustomRuleConfig[];
   issues: string[];
