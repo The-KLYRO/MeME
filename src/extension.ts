@@ -5,6 +5,7 @@ import { Logger } from './core/logger';
 import { OutputIngestion } from './core/outputIngestion';
 import { PatternEngine } from './core/patternEngine';
 import { PresetRegistry } from './core/presets';
+import { shouldIgnoreSession } from './core/sessionFilter';
 import { SessionTracker } from './core/sessionTracker';
 import { SettingsRegistry } from './core/settings';
 import { StatusController } from './core/statusController';
@@ -205,8 +206,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         return;
       }
 
-      const session = sessionTracker.getOrCreateForObject(event.execution, {
-        sourceType: 'terminal',
+      const seed = {
+        sourceType: 'terminal' as const,
         label: event.terminal.name,
         commandLine: event.execution.commandLine.value,
         tool: event.execution.commandLine.value,
@@ -217,7 +218,14 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
           commandLineTrusted: String(event.execution.commandLine.isTrusted),
           commandLineConfidence: String(event.execution.commandLine.confidence)
         }
-      });
+      };
+
+      if (shouldIgnoreSession(seed)) {
+        logger.info(`terminal monitoring ignored label='${event.terminal.name}' command='${event.execution.commandLine.value}'`);
+        return;
+      }
+
+      const session = sessionTracker.getOrCreateForObject(event.execution, seed);
 
       void onSessionStarted(session);
       void consumeShellExecution(event.execution, session, outputIngestion, logger);
@@ -230,8 +238,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         return;
       }
 
-      const session = sessionTracker.getOrCreateForObject(event.execution, {
-        sourceType: 'terminal',
+      const seed = {
+        sourceType: 'terminal' as const,
         label: event.terminal.name,
         commandLine: event.execution.commandLine.value,
         tool: event.execution.commandLine.value,
@@ -240,7 +248,13 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
           terminalName: event.terminal.name,
           cwd: event.execution.cwd?.fsPath
         }
-      });
+      };
+
+      if (shouldIgnoreSession(seed)) {
+        return;
+      }
+
+      const session = sessionTracker.getOrCreateForObject(event.execution, seed);
 
       outputIngestion.flush(session);
       void onSessionFinished(session.sessionId, event.exitCode);
