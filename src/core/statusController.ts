@@ -11,7 +11,7 @@ export class StatusController implements vscode.Disposable {
 
   public constructor(private readonly item: vscode.StatusBarItem) {
     this.item.command = 'memeSounds.toggleMute';
-    this.item.name = 'Meme Sounds';
+    this.item.name = 'MeME';
   }
 
   public setMuted(muted: boolean): void {
@@ -32,7 +32,7 @@ export class StatusController implements vscode.Disposable {
     const activeCount = activeSessions.length;
     const icon = this.muted ? '$(mute)' : activeCount > 0 ? '$(radio-tower)' : '$(bell)';
     const tail = this.lastEvent && this.lastSessionLabel ? ` ${this.lastEvent} ${truncate(this.lastSessionLabel, 24)}` : activeCount > 0 ? ` watching ${activeCount}` : ' idle';
-    this.item.text = `${icon} Meme${tail}`;
+    this.item.text = `${icon} MeME${tail}`;
     this.item.tooltip = [
       `Muted: ${this.muted ? 'yes' : 'no'}`,
       `Active sessions: ${activeCount}`,

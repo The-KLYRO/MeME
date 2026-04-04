@@ -1,6 +1,6 @@
-# Meme Sounds Live Monitor
+# MeME
 
-Meme Sounds Live Monitor is a production-focused VS Code extension that plays short local audio cues from runtime output while code is still running.
+MeME is a production-focused VS Code extension that plays short local audio cues from runtime output while code is still running.
 
 Most sound extensions only react after a task, terminal command, or debug session exits. This extension watches live output, classifies lines in real time, rate-limits noisy bursts, and plays configurable sounds immediately for success, warning, error, failure, start, and finish signals.
 
@@ -9,10 +9,10 @@ Most sound extensions only react after a task, terminal command, or debug sessio
 - Watches task lifecycle with `vscode.tasks.onDidStartTaskProcess` and `vscode.tasks.onDidEndTaskProcess`
 - Watches debug lifecycle and live debug adapter `output` events
 - Watches terminal shell executions with shell integration and consumes live `TerminalShellExecution.read()` output
-- Provides a guaranteed monitored execution path with `Meme Sounds: Run Command With Live Monitor`
+- Provides a guaranteed monitored execution path with `MeME: Run Command With Live Monitor`
 - Supports preset-driven detection for Rust, Python, JavaScript, TypeScript, Go, Java, C/C++, C#, and generic shell workflows
 - Uses a deterministic event pipeline: session tracking -> output ingestion -> pattern matching -> cooldown -> audio playback -> status update
-- Logs every important decision to the `Meme Sounds` output channel
+- Logs every important decision to the `MeME` output channel
 
 ## Why It Is Different
 
@@ -48,8 +48,8 @@ If a normal integrated terminal command does not have shell integration output a
 
 Use these commands when you want guaranteed live output capture:
 
-- `Meme Sounds: Run Command With Live Monitor`
-- `Meme Sounds: Run Task With Live Monitor`
+- `MeME: Run Command With Live Monitor`
+- `MeME: Run Task With Live Monitor`
 
 These commands launch the process through a dedicated monitored terminal, stream stdout/stderr into the matcher pipeline, and play sounds immediately while the process is still running.
 
@@ -160,22 +160,22 @@ Go examples:
 
 ## Commands
 
-- `Meme Sounds: Enable`
-- `Meme Sounds: Disable`
-- `Meme Sounds: Toggle Mute`
-- `Meme Sounds: Test Success Sound`
-- `Meme Sounds: Test Warning Sound`
-- `Meme Sounds: Test Error Sound`
-- `Meme Sounds: Test Failed Sound`
-- `Meme Sounds: Run Command With Live Monitor`
-- `Meme Sounds: Run Task With Live Monitor`
-- `Meme Sounds: Attach Monitor To Task`
-- `Meme Sounds: Reload Presets`
-- `Meme Sounds: Open Output Log`
+- `MeME: Enable`
+- `MeME: Disable`
+- `MeME: Toggle Mute`
+- `MeME: Test Success Sound`
+- `MeME: Test Warning Sound`
+- `MeME: Test Error Sound`
+- `MeME: Test Failed Sound`
+- `MeME: Run Command With Live Monitor`
+- `MeME: Run Task With Live Monitor`
+- `MeME: Attach Monitor To Task`
+- `MeME: Reload Presets`
+- `MeME: Open Output Log`
 
 ## Output Logging
 
-Open the `Meme Sounds` output channel to inspect:
+Open the `MeME` output channel to inspect:
 
 - session creation
 - matched preset and rule id

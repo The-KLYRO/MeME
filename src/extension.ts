@@ -16,7 +16,7 @@ import { registerCommands } from './commands';
 import { MonitoredTerminalRunner } from './commands/runCommandWithLiveMonitor';
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
-  const logger = new Logger('Meme Sounds');
+  const logger = new Logger('MeME');
   context.subscriptions.push(logger);
 
   const settings = new SettingsRegistry({

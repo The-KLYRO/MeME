@@ -1,7 +1,7 @@
 {
   "name": "meme-sounds-live-monitor",
-  "displayName": "Meme Sounds Live Monitor",
-  "description": "Play configurable meme sounds from live terminal, task, and debug output while code is still running.",
+  "displayName": "MeME",
+  "description": "MeME plays configurable audio cues from live terminal, task, and debug output while code is still running.",
   "version": "0.0.1",
   "publisher": "local",
   "license": "MIT",
@@ -45,55 +45,55 @@
     "commands": [
       {
         "command": "memeSounds.enable",
-        "title": "Meme Sounds: Enable"
+        "title": "MeME: Enable"
       },
       {
         "command": "memeSounds.disable",
-        "title": "Meme Sounds: Disable"
+        "title": "MeME: Disable"
       },
       {
         "command": "memeSounds.toggleMute",
-        "title": "Meme Sounds: Toggle Mute"
+        "title": "MeME: Toggle Mute"
       },
       {
         "command": "memeSounds.testSuccessSound",
-        "title": "Meme Sounds: Test Success Sound"
+        "title": "MeME: Test Success Sound"
       },
       {
         "command": "memeSounds.testWarningSound",
-        "title": "Meme Sounds: Test Warning Sound"
+        "title": "MeME: Test Warning Sound"
       },
       {
         "command": "memeSounds.testErrorSound",
-        "title": "Meme Sounds: Test Error Sound"
+        "title": "MeME: Test Error Sound"
       },
       {
         "command": "memeSounds.testFailedSound",
-        "title": "Meme Sounds: Test Failed Sound"
+        "title": "MeME: Test Failed Sound"
       },
       {
         "command": "memeSounds.runCommandWithLiveMonitor",
-        "title": "Meme Sounds: Run Command With Live Monitor"
+        "title": "MeME: Run Command With Live Monitor"
       },
       {
         "command": "memeSounds.runTaskWithLiveMonitor",
-        "title": "Meme Sounds: Run Task With Live Monitor"
+        "title": "MeME: Run Task With Live Monitor"
       },
       {
         "command": "memeSounds.attachMonitorToTask",
-        "title": "Meme Sounds: Attach Monitor To Task"
+        "title": "MeME: Attach Monitor To Task"
       },
       {
         "command": "memeSounds.reloadPresets",
-        "title": "Meme Sounds: Reload Presets"
+        "title": "MeME: Reload Presets"
       },
       {
         "command": "memeSounds.openOutputLog",
-        "title": "Meme Sounds: Open Output Log"
+        "title": "MeME: Open Output Log"
       }
     ],
     "configuration": {
-      "title": "Meme Sounds",
+      "title": "MeME",
       "properties": {
         "memeSounds.enabled": {
           "type": "boolean",
@@ -123,7 +123,7 @@
         "memeSounds.enableStatusBar": {
           "type": "boolean",
           "default": true,
-          "description": "Show the Meme Sounds status bar item."
+          "description": "Show the MeME status bar item."
         },
         "memeSounds.enableDiagnosticsSignal": {
           "type": "boolean",

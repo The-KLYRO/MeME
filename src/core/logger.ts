@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 export class Logger implements vscode.Disposable {
   private readonly channel: vscode.OutputChannel;
 
-  public constructor(name = 'Meme Sounds') {
+  public constructor(name = 'MeME') {
     this.channel = vscode.window.createOutputChannel(name);
   }
 
