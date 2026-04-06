@@ -8,7 +8,7 @@ Validate each workflow with either shell integration enabled or the monitored ru
 | `cargo test` | success/failed | pass/fail summary triggers instantly |
 | `python script.py` | error/finished | traceback lines trigger during run |
 | `pytest` | success/failed/warning | summary lines trigger live |
-| `npm run build` | warning/error/failed | bundler/compiler output triggers live |
+| any command starting with `npm` | warning/error/failed/success | npm CLI lines and wrapped tool output trigger live |
 | `tsc -w` | success/error | watcher stays active and still emits sounds |
 | `go test` | pass/fail/error | PASS/FAIL lines trigger live |
 | `dotnet build` | warning/error/success | .NET build lines map correctly |

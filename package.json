@@ -170,6 +170,11 @@
           "default": "",
           "description": "Path to the sound for started. Leave empty to use the bundled default."
         },
+        "memeSounds.sound.info": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the sound for info. Leave empty to use the bundled default."
+        },
         "memeSounds.sound.finished": {
           "type": "string",
           "default": "",

@@ -4,8 +4,8 @@ import * as path from 'node:path';
 import {
   DEFAULT_RULE_PRIORITY,
   type CustomRuleConfig,
-  type PlaybackEventType,
-  PLAYABLE_EVENT_TYPES,
+  type SoundEventType,
+  SOUND_EVENT_TYPES,
   type PresetToggleKey,
   type SettingsSnapshot,
   type SourceType
@@ -33,16 +33,7 @@ const PRESET_KEYS: readonly PresetToggleKey[] = [
   'csharp'
 ];
 
-const SOUND_EVENTS: readonly PlaybackEventType[] = PLAYABLE_EVENT_TYPES;
-
-const BUNDLED_SOUND_FILES: Readonly<Record<PlaybackEventType, readonly string[]>> = {
-  started: ['started.wav'],
-  success: ['success.wav', 'noice.wav', 'oh_my_god_wow.wav', 'yeah_boy.wav', 'yeet.wav'],
-  warning: ['warning.wav', 'what.wav', 'enemy_spotted.wav', 'technologya.wav'],
-  error: ['error.wav', 'oh_hell_no_man.wav', 'nope_meme.wav', 'omaiga_meme.wav'],
-  failed: ['failed.wav', 'get_out.wav', 'faaaa.wav'],
-  finished: ['success.wav', 'noice.wav', 'oh_my_god_wow.wav', 'yeah_boy.wav', 'yeet.wav']
-};
+const SOUND_EVENTS: readonly SoundEventType[] = SOUND_EVENT_TYPES;
 
 export class SettingsRegistry {
   private snapshot: SettingsSnapshot;
@@ -59,21 +50,19 @@ export class SettingsRegistry {
       issues.push(message);
       this.options.onIssue?.(message);
     };
+    const bundledSounds = loadBundledSounds(this.options.extensionPath, onIssue);
 
-    const sounds = Object.fromEntries(
-      SOUND_EVENTS.map((eventType) => {
-        const configured = config.get<string>(`sound.${eventType}`, '').trim();
-        const resolved = resolveSoundPath({
-          configured,
-          eventType,
-          extensionPath: this.options.extensionPath,
-          workspaceFolders,
-          onIssue
-        });
-
-        return [eventType, resolved];
-      })
-    ) as Record<PlaybackEventType, string[]>;
+    const sounds = createSoundRegistry((eventType) => {
+      const configured = config.get<string>(`sound.${eventType}`, '').trim();
+      return resolveSoundPath({
+        bundled: bundledSounds[eventType],
+        configured,
+        eventType,
+        extensionPath: this.options.extensionPath,
+        workspaceFolders,
+        onIssue
+      });
+    });
 
     const presets = Object.fromEntries(
       PRESET_KEYS.map((presetKey) => [presetKey, config.get<boolean>(`presets.${presetKey}`, true)])
@@ -179,16 +168,15 @@ export function isValidRegex(pattern: string, caseSensitive: boolean): boolean {
 }
 
 function resolveSoundPath(options: {
+  bundled: string[];
   configured: string;
-  eventType: PlaybackEventType;
+  eventType: SoundEventType;
   extensionPath: string;
   workspaceFolders: string[];
   onIssue: (message: string) => void;
 }): string[] {
-  const bundled = resolveBundledSoundPaths(options.eventType, options.extensionPath, options.onIssue);
-
   if (options.configured.length === 0) {
-    return bundled;
+    return options.bundled;
   }
 
   const target = resolveUserPath(options.configured, options.workspaceFolders, options.extensionPath);
@@ -196,26 +184,69 @@ function resolveSoundPath(options: {
 
   if (ext !== '.wav' && ext !== '.mp3') {
     options.onIssue(`Sound for '${options.eventType}' must be a .wav or .mp3 file. Falling back to bundled sound.`);
-    return bundled;
+    return options.bundled;
   }
 
   if (!fs.existsSync(target)) {
     options.onIssue(`Sound for '${options.eventType}' was not found at '${target}'. Falling back to bundled sound.`);
-    return bundled;
+    return options.bundled;
   }
 
   return [target];
 }
 
-function resolveBundledSoundPaths(eventType: PlaybackEventType, extensionPath: string, onIssue: (message: string) => void): string[] {
-  const candidates = BUNDLED_SOUND_FILES[eventType].map((fileName) => path.join(extensionPath, 'media', 'sounds', fileName));
-  const resolved = candidates.filter((candidate) => fs.existsSync(candidate));
+function loadBundledSounds(
+  extensionPath: string,
+  onIssue: (message: string) => void
+): Record<SoundEventType, string[]> {
+  const registryPath = path.join(extensionPath, 'media', 'sounds', 'categories.json');
+  const emptyRegistry = createSoundRegistry(() => []);
 
-  if (resolved.length === 0) {
-    onIssue(`No bundled sounds were found for '${eventType}'.`);
+  if (!fs.existsSync(registryPath)) {
+    onIssue(`Bundled sound registry was not found at '${registryPath}'.`);
+    return emptyRegistry;
   }
 
-  return resolved;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+  } catch {
+    onIssue(`Bundled sound registry could not be parsed at '${registryPath}'.`);
+    return emptyRegistry;
+  }
+
+  if (!isObject(parsed)) {
+    onIssue(`Bundled sound registry must be a JSON object at '${registryPath}'.`);
+    return emptyRegistry;
+  }
+
+  return createSoundRegistry((eventType) => {
+    const rawEntries = parsed[eventType];
+    if (!Array.isArray(rawEntries)) {
+      onIssue(`Bundled sound registry entry '${eventType}' must be an array.`);
+      return [];
+    }
+
+    const fileNames = rawEntries.filter((value): value is string => typeof value === 'string').map((value) => value.trim()).filter(Boolean);
+    const resolved = fileNames
+      .map((fileName) => path.join(extensionPath, 'media', 'sounds', fileName))
+      .filter((candidate) => fs.existsSync(candidate));
+
+    if (resolved.length === 0) {
+      onIssue(`No bundled sounds were found for '${eventType}'.`);
+    }
+
+    return resolved;
+  });
+}
+
+function createSoundRegistry(factory: (eventType: SoundEventType) => string[]): Record<SoundEventType, string[]> {
+  const sounds = {} as Record<SoundEventType, string[]>;
+  for (const eventType of SOUND_EVENTS) {
+    sounds[eventType] = factory(eventType);
+  }
+
+  return sounds;
 }
 
 function resolveUserPath(rawPath: string, workspaceFolders: string[], extensionPath: string): string {

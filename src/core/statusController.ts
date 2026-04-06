@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 import { truncate } from './text';
-import { type PlaybackEventType, type RuleEventType, type SettingsSnapshot, type TrackedSession } from './types';
+import { type SettingsSnapshot, type SoundEventType, type TrackedSession } from './types';
 
-type StatusEventType = PlaybackEventType | RuleEventType;
+type StatusEventType = SoundEventType;
 
 export class StatusController implements vscode.Disposable {
   private lastEvent?: StatusEventType;

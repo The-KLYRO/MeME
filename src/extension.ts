@@ -10,7 +10,7 @@ import { SessionTracker } from './core/sessionTracker';
 import { SettingsRegistry } from './core/settings';
 import { StatusController } from './core/statusController';
 import { truncate } from './core/text';
-import { type PlaybackEventType, type RuleEventType, type SessionContext, type TrackedSession } from './core/types';
+import { type LifecycleEventType, type RuleEventType, type SessionContext, type SoundEventType, type TrackedSession } from './core/types';
 import { MUTE_STATE_KEY } from './commands/commandIds';
 import { registerCommands } from './commands';
 import { MonitoredTerminalRunner } from './commands/runCommandWithLiveMonitor';
@@ -42,11 +42,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     status.refresh(settings.getSnapshot(), sessionTracker.getActiveSessions());
   };
 
-  const logSound = (eventType: PlaybackEventType | RuleEventType, session: TrackedSession, played: boolean, reason?: string): void => {
+  const logSound = (eventType: SoundEventType, session: TrackedSession, played: boolean, reason?: string): void => {
     logger.info(`sound ${played ? 'played' : 'skipped'} session=${session.sessionId} event=${eventType} reason=${reason ?? 'ok'}`);
   };
 
-  const playLifecycleEvent = async (session: TrackedSession, eventType: PlaybackEventType): Promise<void> => {
+  const playSoundEvent = async (session: TrackedSession, eventType: SoundEventType): Promise<void> => {
     sessionTracker.markEvent(session.sessionId, eventType);
     status.rememberEvent(session, eventType);
     refreshStatus();
@@ -68,7 +68,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     logger.info(
       `session created id=${session.sessionId} source=${session.sourceType} label='${session.label}' reliableLiveCapture=${session.reliableLiveCapture}`
     );
-    await playLifecycleEvent(session, 'started');
+    await playSoundEvent(session, 'started');
   };
 
   const onSessionFinished = async (sessionId: string, exitCode?: number): Promise<void> => {
@@ -87,14 +87,14 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
     if (session.failureDetected) {
       if (session.lastEventType !== 'failed' && settings.getSnapshot().enabled) {
-        await playLifecycleEvent(session, 'failed');
+        await playSoundEvent(session, 'failed');
       } else {
         refreshStatus();
       }
       return;
     }
 
-    await playLifecycleEvent(session, 'finished');
+    await playSoundEvent(session, 'finished');
   };
 
   const classifyEvent = async (eventType: RuleEventType, session: TrackedSession, reason: string, cooldownMs?: number): Promise<void> => {
@@ -102,11 +102,6 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     sessionTracker.markEvent(session.sessionId, eventType, reason);
     status.rememberEvent(session, eventType);
     refreshStatus();
-
-    if (eventType === 'info') {
-      logSound(eventType, session, false, 'nonPlayable');
-      return;
-    }
 
     if (!snapshot.enabled) {
       logSound(eventType, session, false, 'disabled');

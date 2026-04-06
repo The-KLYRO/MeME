@@ -1,0 +1,64 @@
+{
+  "started": [
+    "started.wav",
+    "alert_sound.wav",
+    "among_us.wav",
+    "spiderman.wav",
+    "x_files.wav"
+  ],
+  "info": [
+    "mentality_core.wav",
+    "shocked_sound_effect.wav"
+  ],
+  "success": [
+    "success.wav",
+    "cat_laughing.wav",
+    "meme_again.wav",
+    "noice.wav",
+    "oh_my_god_wow.wav",
+    "siuuu.wav",
+    "yeah_boy.wav",
+    "yeet.wav",
+    "yes_daddy.wav",
+    "yoooo.wav"
+  ],
+  "warning": [
+    "warning.wav",
+    "enemy_spotted.wav",
+    "squeak_sound_effect.wav",
+    "technologya.wav",
+    "what.wav"
+  ],
+  "error": [
+    "error.wav",
+    "augh.wav",
+    "daaaamn.wav",
+    "huh.wav",
+    "huh (1).wav",
+    "nope_meme.wav",
+    "oh_hell_no_man.wav",
+    "omaiga_meme.wav",
+    "windows_error.wav",
+    "x_files.wav"
+  ],
+  "failed": [
+    "failed.wav",
+    "bonk.wav",
+    "bruh.wav",
+    "faaaa.wav",
+    "fart_meme_sound.wav",
+    "get_out.wav",
+    "henta_ahh.wav",
+    "oof.wav",
+    "punch.wav",
+    "windows_shutdown.wav"
+  ],
+  "finished": [
+    "success.wav",
+    "meme_again.wav",
+    "noice.wav",
+    "oh_my_god_wow.wav",
+    "yeah_boy.wav",
+    "yeet.wav"
+  ]
+}

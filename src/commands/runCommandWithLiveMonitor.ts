@@ -5,27 +5,7 @@ import { type OutputIngestion } from '../core/outputIngestion';
 import { type SessionTracker } from '../core/sessionTracker';
 import { toTerminalChunk } from '../core/text';
 import { type SourceType, type TrackedSession } from '../core/types';
-
-type MonitoredExecutionRequest =
-  | {
-      kind: 'shell';
-      label: string;
-      sourceType: SourceType;
-      commandLine: string;
-      cwd?: string;
-      env?: Record<string, string | undefined>;
-      metadata?: Record<string, string | undefined>;
-    }
-  | {
-      kind: 'process';
-      label: string;
-      sourceType: SourceType;
-      command: string;
-      args: string[];
-      cwd?: string;
-      env?: Record<string, string | undefined>;
-      metadata?: Record<string, string | undefined>;
-    };
+import { buildTaskDefinitionRequest, type MonitoredExecutionRequest } from './monitoredTaskRequest';
 
 export interface MonitoredRunnerDependencies {
   sessionTracker: SessionTracker;
@@ -289,7 +269,12 @@ function shellArguments(shellPath: string, commandLine: string): string[] {
 function toMonitoredRequest(task: vscode.Task): MonitoredExecutionRequest | undefined {
   const execution = task.execution;
   if (!execution) {
-    return undefined;
+    return buildTaskDefinitionRequest({
+      taskName: task.name,
+      definitionType: task.definition.type,
+      definition: task.definition,
+      scopePath: getTaskScopePath(task)
+    });
   }
 
   if (execution instanceof vscode.ShellExecution) {
@@ -328,7 +313,20 @@ function toMonitoredRequest(task: vscode.Task): MonitoredExecutionRequest | unde
     };
   }
 
-  return undefined;
+  return buildTaskDefinitionRequest({
+    taskName: task.name,
+    definitionType: task.definition.type,
+    definition: task.definition,
+    scopePath: getTaskScopePath(task)
+  });
+}
+
+function getTaskScopePath(task: vscode.Task): string | undefined {
+  if (task.scope && typeof task.scope === 'object' && 'uri' in task.scope) {
+    return task.scope.uri.fsPath;
+  }
+
+  return getDefaultCwd();
 }
 
 function renderShellCommand(

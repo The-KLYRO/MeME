@@ -4,7 +4,7 @@ import * as path from 'node:path';
 import * as cp from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 import type { Logger } from './logger';
-import { type PlaybackEventType, type SettingsSnapshot } from './types';
+import { SOUND_EVENT_TYPES, type SettingsSnapshot, type SoundEventType } from './types';
 
 interface PlaybackResult {
   played: boolean;
@@ -18,14 +18,7 @@ interface CommandInvocation {
 }
 
 export class AudioEngine {
-  private sounds: Record<PlaybackEventType, string[]> = {
-    started: [],
-    success: [],
-    warning: [],
-    error: [],
-    failed: [],
-    finished: []
-  };
+  private sounds = createSoundRegistry();
   private muted = false;
   private volume = 0.8;
   private maxSimultaneousSounds = 2;
@@ -48,7 +41,7 @@ export class AudioEngine {
     return this.muted;
   }
 
-  public async play(eventType: PlaybackEventType): Promise<PlaybackResult> {
+  public async play(eventType: SoundEventType): Promise<PlaybackResult> {
     const soundPaths = this.sounds[eventType].filter((candidate) => fs.existsSync(candidate));
     const soundPath = pickRandomSoundPath(soundPaths);
     if (this.muted) {
@@ -130,6 +123,15 @@ export class AudioEngine {
       });
     });
   }
+}
+
+function createSoundRegistry(): Record<SoundEventType, string[]> {
+  const sounds = {} as Record<SoundEventType, string[]>;
+  for (const eventType of SOUND_EVENT_TYPES) {
+    sounds[eventType] = [];
+  }
+
+  return sounds;
 }
 
 function buildInvocations(soundPath: string, volume: number): CommandInvocation[] {

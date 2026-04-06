@@ -3,7 +3,7 @@ import { describe, it } from 'mocha';
 import { OutputIngestion } from '../src/core/outputIngestion';
 import { PatternEngine } from '../src/core/patternEngine';
 import { PresetRegistry } from '../src/core/presets';
-import type { ClassificationResult, SessionContext, SettingsSnapshot } from '../src/core/types';
+import { SOUND_EVENT_TYPES, type ClassificationResult, type SessionContext, type SettingsSnapshot } from '../src/core/types';
 
 function createSettings(): SettingsSnapshot {
   return {
@@ -16,14 +16,7 @@ function createSettings(): SettingsSnapshot {
     enableTaskMonitoring: true,
     enableDebugMonitoring: true,
     enableTerminalMonitoring: true,
-    sounds: {
-      started: ['started.wav'],
-      success: ['success.wav'],
-      warning: ['warning.wav'],
-      error: ['error.wav'],
-      failed: ['failed.wav'],
-      finished: ['finished.wav']
-    },
+    sounds: Object.fromEntries(SOUND_EVENT_TYPES.map((eventType) => [eventType, [`${eventType}.wav`]])) as SettingsSnapshot['sounds'],
     presets: {
       rust: true,
       python: true,

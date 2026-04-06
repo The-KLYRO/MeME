@@ -25,7 +25,7 @@ Most sound extensions only react after a task, terminal command, or debug sessio
 
 - Rust: `cargo build`, `cargo test`, `cargo run`, `cargo check`
 - Python: `python script.py`, `pytest`
-- JavaScript / TypeScript: `npm run build`, `vite`, `webpack`, `tsc -w`, `node`
+- JavaScript / TypeScript: any workflow that starts with `npm` (`npm install`, `npm test`, `npm run build`, `npm run dev`, `npm ci`), plus `vite`, `webpack`, `tsc -w`, `node`
 - Go: `go test`, `go build`
 - Java: `javac`, Maven, Gradle
 - C / C++: `gcc`, `g++`, `clang`, `clang++`, MSVC
@@ -53,6 +53,8 @@ Use these commands when you want guaranteed live output capture:
 
 These commands launch the process through a dedicated monitored terminal, stream stdout/stderr into the matcher pipeline, and play sounds immediately while the process is still running.
 
+`MeME: Run Task With Live Monitor` now also wraps VS Code `npm` tasks by reconstructing the underlying `npm run <script>` command, including forwarded script arguments, when VS Code does not expose a direct shell or process execution object.
+
 ## Settings
 
 Main settings:
@@ -71,6 +73,7 @@ Main settings:
 - `memeSounds.sound.error`
 - `memeSounds.sound.failed`
 - `memeSounds.sound.started`
+- `memeSounds.sound.info`
 - `memeSounds.sound.finished`
 - `memeSounds.presets.rust`
 - `memeSounds.presets.python`
@@ -84,7 +87,7 @@ Main settings:
 
 ## Custom Sounds
 
-Bundled defaults live in `media/sounds/`. You can override any sound with an absolute path, a workspace-relative path, or `${workspaceFolder}`.
+Bundled defaults live in `media/sounds/`, and the bundled event-to-audio mapping is registered in `media/sounds/categories.json`. You can override any sound with an absolute path, a workspace-relative path, or `${workspaceFolder}`.
 
 Example:
 
@@ -149,6 +152,10 @@ JavaScript / TypeScript examples:
 - `error TS2345:`
 - `Compiled successfully`
 - `Failed to compile`
+- `npm ERR! Missing script: "build"`
+- `npm error code E404`
+- `npm warn deprecated left-pad@1.3.0`
+- `npm WARN deprecated left-pad@1.3.0`
 - `webpack compiled with warnings`
 
 Go examples:

@@ -1,4 +1,4 @@
-import { type PlaybackEventType, type RuleEventType, type SessionContext, type SourceType, type TrackedSession } from './types';
+import { type SessionContext, type SoundEventType, type SourceType, type TrackedSession } from './types';
 
 export interface SessionSeed {
   sourceType: SourceType;
@@ -41,7 +41,7 @@ export class SessionTracker {
     return this.sessions.get(sessionId);
   }
 
-  public markEvent(sessionId: string, eventType: RuleEventType | PlaybackEventType, ruleId?: string): TrackedSession | undefined {
+  public markEvent(sessionId: string, eventType: SoundEventType, ruleId?: string): TrackedSession | undefined {
     const session = this.sessions.get(sessionId);
     if (!session) {
       return undefined;

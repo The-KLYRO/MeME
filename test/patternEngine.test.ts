@@ -2,7 +2,7 @@ import { strict as assert } from 'node:assert';
 import { describe, it } from 'mocha';
 import { PatternEngine } from '../src/core/patternEngine';
 import { PresetRegistry } from '../src/core/presets';
-import type { IngestedLine, SettingsSnapshot } from '../src/core/types';
+import { SOUND_EVENT_TYPES, type IngestedLine, type SettingsSnapshot } from '../src/core/types';
 
 function createSettings(): SettingsSnapshot {
   return {
@@ -15,14 +15,7 @@ function createSettings(): SettingsSnapshot {
     enableTaskMonitoring: true,
     enableDebugMonitoring: true,
     enableTerminalMonitoring: true,
-    sounds: {
-      started: ['started.wav'],
-      success: ['success.wav'],
-      warning: ['warning.wav'],
-      error: ['error.wav'],
-      failed: ['failed.wav'],
-      finished: ['finished.wav']
-    },
+    sounds: Object.fromEntries(SOUND_EVENT_TYPES.map((eventType) => [eventType, [`${eventType}.wav`]])) as SettingsSnapshot['sounds'],
     presets: {
       rust: true,
       python: true,
@@ -130,5 +123,36 @@ describe('PatternEngine', () => {
     const result = engine.classify(line('error: could not compile `demo` due to previous error(s)'));
     assert.equal(result.eventType, 'failed');
     assert.equal(result.matchedRule?.id, 'rust.failed.compile');
+  });
+
+  it('classifies npm lifecycle failures as javascript workflow failures', () => {
+    const engine = new PatternEngine(new PresetRegistry());
+    engine.reload(createSettings());
+
+    const result = engine.classify(line('npm ERR! Missing script: "build"', 'npm run build javascript'));
+    assert.equal(result.eventType, 'failed');
+    assert.equal(result.matchedRule?.id, 'javascript.failed.npm-script');
+  });
+
+  it('classifies npm install completion as success', () => {
+    const engine = new PatternEngine(new PresetRegistry());
+    engine.reload(createSettings());
+
+    const result = engine.classify(line('added 15 packages, and audited 15 packages in 2s', 'npm install javascript'));
+    assert.equal(result.eventType, 'success');
+    assert.equal(result.matchedRule?.id, 'javascript.success.npm-install');
+  });
+
+  it('classifies lowercase npm warnings and errors from newer npm output', () => {
+    const engine = new PatternEngine(new PresetRegistry());
+    engine.reload(createSettings());
+
+    const warningResult = engine.classify(line('npm warn deprecated left-pad@1.3.0: use String.prototype.padStart()', 'npm install javascript'));
+    assert.equal(warningResult.eventType, 'warning');
+    assert.equal(warningResult.matchedRule?.id, 'javascript.warning.npm');
+
+    const errorResult = engine.classify(line('npm error code E404', 'npm install javascript'));
+    assert.equal(errorResult.eventType, 'failed');
+    assert.equal(errorResult.matchedRule?.id, 'javascript.failed.npm-usage');
   });
 });

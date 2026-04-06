@@ -2,9 +2,11 @@ export type SourceType = 'terminal' | 'task' | 'debug';
 
 export type ClassifiedEventType = 'success' | 'warning' | 'error' | 'failed' | 'info' | 'none';
 
-export type PlaybackEventType = 'started' | 'success' | 'warning' | 'error' | 'failed' | 'finished';
+export type LifecycleEventType = 'started' | 'finished';
 
 export type RuleEventType = Exclude<ClassifiedEventType, 'none'>;
+
+export type SoundEventType = LifecycleEventType | RuleEventType;
 
 export type PresetToggleKey =
   | 'rust'
@@ -27,13 +29,19 @@ export const CLASSIFICATION_EVENT_PRIORITY: Readonly<Record<ClassifiedEventType,
   none: 0
 };
 
-export const PLAYABLE_EVENT_TYPES: readonly PlaybackEventType[] = [
-  'started',
+export const RULE_EVENT_TYPES: readonly RuleEventType[] = [
   'success',
   'warning',
   'error',
   'failed',
-  'finished'
+  'info'
+];
+
+export const LIFECYCLE_EVENT_TYPES: readonly LifecycleEventType[] = ['started', 'finished'];
+
+export const SOUND_EVENT_TYPES: readonly SoundEventType[] = [
+  ...LIFECYCLE_EVENT_TYPES,
+  ...RULE_EVENT_TYPES
 ];
 
 export interface PatternRuleDefinition {
@@ -83,7 +91,7 @@ export interface SettingsSnapshot {
   enableTaskMonitoring: boolean;
   enableDebugMonitoring: boolean;
   enableTerminalMonitoring: boolean;
-  sounds: Record<PlaybackEventType, string[]>;
+  sounds: Record<SoundEventType, string[]>;
   presets: Record<PresetToggleKey, boolean>;
   customRules: CustomRuleConfig[];
   issues: string[];
@@ -108,7 +116,7 @@ export interface TrackedSession extends SessionContext {
   endedAt?: number;
   exitCode?: number;
   failureDetected: boolean;
-  lastEventType?: PlaybackEventType | RuleEventType;
+  lastEventType?: SoundEventType;
   lastRuleId?: string;
 }
 
