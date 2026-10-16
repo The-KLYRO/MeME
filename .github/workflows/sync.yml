@@ -1,0 +1,41 @@
+name: Sync GitHub <-> GitLab
+
+# NOTE: `issues` and `pull_request` triggers are intentionally omitted.
+# gitsync is bidirectional and itself creates/closes GitHub issues and PRs to
+# mirror GitLab. With those event types enabled, each sync run fired new
+# `issues`/`pull_request` events that re-triggered the workflow - a
+# self-sustaining feedback loop that spawned a run every ~15s. Issue/PR
+# changes now sync on `push`, the 6-hour schedule, and manual dispatch, which
+# breaks the loop while preserving bidirectional sync.
+on:
+  push:
+    branches: ['**']
+    tags: ['*']
+  release:
+    types: [published]
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: gitsync-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7.0.1
+
+      - name: Sync with GitLab
+        uses: iamvikshan/gitsync@v1.1.3
+        with:
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
